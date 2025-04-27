@@ -7,23 +7,26 @@ import {
   View,
 } from "react-native";
 import { Divider, TextInput } from "react-native-paper";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 import GlobalStyles from "../../helpers/GlobalStyles";
 import Theme from "../../helpers/Theme";
 
 import logoBlack from "../../assets/logo.png";
-// import googleLogo from "../../assets/google-logo.png";
-import axios from "axios";
+import googleLogo from "../../assets/google-logo.png";
 // import GoogleLoginButton from "../../components/googleloginbutton/GoogleLoginButton";
 
-const LoginScreen = ({ navigation }) => {
+const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const emailInputHandler = (text) => {
     setEmail(text);
+  };
+  const usernameInputHandler = (text) => {
+    setUsername(text);
   };
   const passwordInputHandler = (text) => {
     setPassword(text);
@@ -31,26 +34,21 @@ const LoginScreen = ({ navigation }) => {
   const forgotPasswordHandler = () => {
     console.log("forgot password clicked");
   };
-  const signUpHandler = () => {
-    navigation.navigate("signup");
-  };
 
-  const loginHandler = async () => {
-    console.log("yo", process.env.EXPO_BASE_URL);
+  const signUpHandler = async () => {
+    console.log("yo");
     try {
       const response = await axios.post(
-        "http://192.168.1.100:3000/customers/login",
+        `${process.env.EXPO_BASE_URL}/customers/verify-email`,
         {
+          name: username,
           email: email,
           password: password,
         }
       );
 
       if (response.data) {
-        console.log("response.data [LOGIN]=>", response.data);
-
-        // Save response.data into AsyncStorage
-        await AsyncStorage.setItem("userData", JSON.stringify(response.data));
+        console.log("response.data [REGISTER]=>", response.data);
 
         // Alert on success
         Alert.alert("Login Successful", "You have logged in successfully!");
@@ -62,6 +60,10 @@ const LoginScreen = ({ navigation }) => {
       Alert.alert("Login Failed", "Something went wrong. Please try again.");
     }
   };
+
+  const loginHandler = () => {
+    navigation.navigate("login");
+  };
   return (
     <SafeAreaView style={[GlobalStyles.Bodycontainer, { paddingTop: "15%" }]}>
       <View style={[GlobalStyles.Center]}>
@@ -72,12 +74,23 @@ const LoginScreen = ({ navigation }) => {
         />
       </View>
       <View>
-        <View style={{ marginVertical: "8%" }}>
+        <View>
           <Text style={GlobalStyles.LabelText}>email</Text>
           <TextInput
             style={GlobalStyles.TextInput}
             value={email}
             onChangeText={emailInputHandler}
+            mode="outlined"
+            outlineColor="#EDF1F3"
+            activeOutlineColor={Theme.textGray}
+          />
+        </View>
+        <View style={{ marginVertical: "4%" }}>
+          <Text style={GlobalStyles.LabelText}>username</Text>
+          <TextInput
+            style={GlobalStyles.TextInput}
+            value={username}
+            onChangeText={usernameInputHandler}
             mode="outlined"
             outlineColor="#EDF1F3"
             activeOutlineColor={Theme.textGray}
@@ -118,15 +131,15 @@ const LoginScreen = ({ navigation }) => {
         <TouchableOpacity
           style={[
             GlobalStyles.ButtonLayout,
-            { backgroundColor: Theme.brown, marginTop: "10%" },
+            { backgroundColor: Theme.brown, marginTop: "6%" },
           ]}
-          onPress={loginHandler}
+          onPress={signUpHandler}
         >
-          <Text style={{ fontSize: 16, fontWeight: "600" }}>log in</Text>
+          <Text style={{ fontSize: 16, fontWeight: "600" }}>register</Text>
         </TouchableOpacity>
       </View>
       <View>
-        {/* <Divider style={{ marginVertical: "2%" }} /> */}
+        <Divider style={{ marginVertical: "2%" }} />
         {/* <TouchableOpacity
           style={[
             GlobalStyles.ButtonLayout,
@@ -155,14 +168,14 @@ const LoginScreen = ({ navigation }) => {
           <Text
             style={{ color: Theme.textGray, fontSize: 14, fontWeight: "500" }}
           >
-            don’t have an account?
+            already have an account?
           </Text>
-          <TouchableOpacity onPress={signUpHandler}>
+          <TouchableOpacity onPress={loginHandler}>
             <Text
               style={{ color: Theme.textBlue, fontSize: 14, fontWeight: "600" }}
             >
               {" "}
-              sign up
+              login
             </Text>
           </TouchableOpacity>
         </View>
@@ -171,4 +184,4 @@ const LoginScreen = ({ navigation }) => {
   );
 };
 
-export default LoginScreen;
+export default SignUpScreen;
